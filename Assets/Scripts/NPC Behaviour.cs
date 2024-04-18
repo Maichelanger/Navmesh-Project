@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class NPCBehaviour : MonoBehaviour
 {
@@ -31,6 +32,12 @@ public class NPCBehaviour : MonoBehaviour
             destination = new Vector3(Random.Range(mapMin.x, mapMax.x), 0, Random.Range(mapMin.z, mapMax.z));
             navAgent.SetDestination(destination);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void Update()
