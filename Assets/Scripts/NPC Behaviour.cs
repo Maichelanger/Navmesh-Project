@@ -1,3 +1,5 @@
+using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -10,11 +12,18 @@ public class NPCBehaviour : MonoBehaviour
     [SerializeField] private Transform waypointsParent;
     [SerializeField] private Vector3 mapMax;
     [SerializeField] private Vector3 mapMin;
+    [SerializeField] private GameObject gameOverText;
 
     private Vector3 destination;
     private int currentWaypointIndex = 0;
     private NavMeshAgent navAgent;
     private Transform[] waypoints;
+    private bool dead = false;
+
+    private void Awake()
+    {
+        gameOverText.SetActive(false);
+    }
 
     private void Start()
     {
@@ -36,9 +45,10 @@ public class NPCBehaviour : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (collision.gameObject.CompareTag("Enemy") && !dead)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            dead = true;
+            StartCoroutine(EndGame());
         }
     }
 
@@ -117,5 +127,17 @@ public class NPCBehaviour : MonoBehaviour
                 navAgent.SetDestination(hit.point);
             }
         }
+    }
+
+    IEnumerator EndGame()
+    {
+        GetComponent<MeshRenderer>().enabled = false;
+
+        int time = (int)Time.timeSinceLevelLoad;
+        gameOverText.GetComponent<TextMeshProUGUI>().text = "You lasted " + time + " secs.";
+        gameOverText.SetActive(true);
+
+        yield return new WaitForSeconds(2);
+        SceneManager.LoadScene(0);
     }
 }
